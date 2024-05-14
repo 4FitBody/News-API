@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
+using News_Api.Core.Models;
+using News_Api.Core.Repositories;
+using News_Api.Infrastructure.Queries;
 
 namespace News_Api.Infrastructure.Handlers;
 
@@ -13,11 +17,11 @@ public class GetAllHandler : IRequestHandler<GetAllQuery, IEnumerable<News>>
 
     public async Task<IEnumerable<News>>? Handle(GetAllQuery request, CancellationToken cancellationToken)
     {
-        var news = this.newsRepository.GetAll();
+        var news = await this.newsRepository.GetAllAsync();
 
         if (news is null)
         {
-            return Enumerable.Empty<Exercise>();
+            return Enumerable.Empty<News>();
         }
 
         return news;

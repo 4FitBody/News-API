@@ -2,6 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using News_Api.Core.Models;
+using News_Api.Infrastructure.Commands;
+using News_Api.Infrastructure.Queries;
+using News_Api.Infrastructure.Services;
+using News_Api.Presentation.Models;
+using News_Api.Presentation.Options;
+using Newtonsoft.Json;
 
 namespace News_Api.Presentation.Controllers;
 
@@ -12,11 +23,11 @@ public class NewsController : ControllerBase
     private readonly ISender sender;
     private readonly BlobContainerService blobContainerService;
 
-    public NewsController(ISender sender)
+    public NewsController(ISender sender, IOptions<BlobOptions> blobOptions)
     {
         this.sender = sender;
 
-        this.blobContainerService = new BlobContainerService();
+        this.blobContainerService = new BlobContainerService(blobOptions.Value.Url, blobOptions.Value.ContainerName);
     }
 
     [HttpGet]

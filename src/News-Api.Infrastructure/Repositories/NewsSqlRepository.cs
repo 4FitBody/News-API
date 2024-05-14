@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using News_Api.Core.Models;
+using News_Api.Core.Repositories;
+using News_Api.Infrastructure.Data;
 
 namespace News_Api.Infrastructure.Repositories;
 
