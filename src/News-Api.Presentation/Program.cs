@@ -1,3 +1,11 @@
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using News_Api.Core.Repositories;
+using News_Api.Infrastructure.Data;
+using News_Api.Infrastructure.Repositories;
+using News_Api.Presentation.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var blobOptionsSection = builder.Configuration.GetSection("BlobOptions");
@@ -6,7 +14,7 @@ var blobOptions = blobOptionsSection.Get<BlobOptions>() ?? throw new Exception("
 
 builder.Services.Configure<BlobOptions>(blobOptionsSection);
 
-var infrastructureAssembly = typeof(SportSupplementDbContext).Assembly;
+var infrastructureAssembly = typeof(NewsDbContext).Assembly;
 
 builder.Services.AddMediatR(configurations =>
 {
