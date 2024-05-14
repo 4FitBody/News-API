@@ -11,14 +11,15 @@ public class NewsMongoRepository : INewsRepository
     private readonly IMongoDatabase newsDb;
     private readonly IMongoCollection<News> mycollection;
 
-    public NewsMongoRepository(string connectionString)
+    public NewsMongoRepository(string connectionString, string databaseName, string collectionName)
     {
         var client = new MongoClient(connectionString);
 
-        this.newsDb = client.GetDatabase("NewsDb");
+        this.newsDb = client.GetDatabase(databaseName);
 
-        this.mycollection = this.newsDb.GetCollection<News>("News");
+        this.mycollection = this.newsDb.GetCollection<News>(collectionName);
     }
+   
 
     public async Task CreateAsync(News news)
     {

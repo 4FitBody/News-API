@@ -4,16 +4,16 @@ using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using News_Api.Core.Models;
 using News_Api.Core.Repositories;
-using News_Api.Infrastructure.Data;
 using News_Api.Infrastructure.Repositories;
 using News_Api.Presentation.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-
-
 var blobOptionsSection = builder.Configuration.GetSection("BlobOptions");
+
+var databaseName = builder.Configuration.GetSection("dbName").Get<string>();
+
+var collectionName = builder.Configuration.GetSection("collectionName").Get<string>();
 
 var blobOptions = blobOptionsSection.Get<BlobOptions>() ?? throw new Exception("Couldn't create blob options object");
 
@@ -34,7 +34,7 @@ builder.Services.AddSingleton<INewsRepository>(provider =>
     {
         throw new Exception($"{connectionString} not found");
     }
-    return new NewsMongoRepository(connectionString);
+    return new NewsMongoRepository(connectionString, databaseName, collectionName);
 });
 
 builder.Services.AddScoped<INewsRepository, NewsSqlRepository>();
