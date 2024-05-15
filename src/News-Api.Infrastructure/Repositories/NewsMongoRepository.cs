@@ -27,11 +27,11 @@ public class NewsMongoRepository : INewsRepository
     }
     public async Task<IEnumerable<News>?> GetAllAsync()
     {
-        var food = await this.mycollection.FindAsync(f => f.IsApproved == true);
+        var news = await this.mycollection.FindAsync(n => n.IsApproved == true);
 
-        var allFood = food.ToList();
+        var allNews = news.ToList();
 
-        return allFood;
+        return allNews;
     }
 
     public async Task<News> GetByIdAsync(int id)
