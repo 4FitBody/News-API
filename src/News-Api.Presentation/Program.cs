@@ -11,9 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 var blobOptionsSection = builder.Configuration.GetSection("BlobOptions");
 
-var databaseName = builder.Configuration.GetSection("dbName").Get<string>();
+var connectionString = builder.Configuration.GetSection("NewsDb").Value;
 
-var collectionName = builder.Configuration.GetSection("collectionName").Get<string>();
+var databaseName = builder.Configuration.GetSection("dbName").Value;
+
+var collectionName = builder.Configuration.GetSection("collectionName").Value;
 
 var blobOptions = blobOptionsSection.Get<BlobOptions>() ?? throw new Exception("Couldn't create blob options object");
 
@@ -26,8 +28,6 @@ builder.Services.AddMediatR(configurations =>
     configurations.RegisterServicesFromAssembly(infrastructureAssembly);
 });
 
-var connectionString = builder.Configuration.GetConnectionString("NewsDb");
-
 builder.Services.AddSingleton<INewsRepository>(provider =>
 {
     if (string.IsNullOrWhiteSpace(connectionString))
@@ -37,7 +37,6 @@ builder.Services.AddSingleton<INewsRepository>(provider =>
     return new NewsMongoRepository(connectionString, databaseName, collectionName);
 });
 
-builder.Services.AddScoped<INewsRepository, NewsSqlRepository>();
 
 builder.Services.AddAuthorization();
 
@@ -75,15 +74,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope()){
-    
-     var client = new MongoClient(connectionString);
+using (var scope = app.Services.CreateScope())
+{
+    var client = new MongoClient(connectionString);
 
     var newsDb = client.GetDatabase("NewsDb");
 
-    var newsCollection = newsDb.GetCollection<News>("News");
+    var newsCollection = newsDb.GetCollection<News>("NewsCollection");
 }
-
 
 app.UseSwagger();
 app.UseSwaggerUI();
