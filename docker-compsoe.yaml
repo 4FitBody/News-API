@@ -1,0 +1,41 @@
+version: '2.2'
+
+services:
+  newsapiapp:
+    image: newsapi
+    container_name: newsapiapp
+    depends_on:
+      - mongodb
+    build:
+      context: .
+      dockerfile: Dockerfile
+    expose:
+      - 8080
+    ports:
+      - 6060:8080
+    networks:
+      - newsbridgenetwork
+    restart: always
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    networks:
+      - newsbridgenetwork
+    volumes:
+      - mynewsmongovolume:/data/db
+      - mynewsmongovolume:/data/configdb
+    restart: always
+
+  
+
+networks:
+  newsbridgenetwork:
+    driver: bridge
+
+volumes:
+  mynewsmongovolume:

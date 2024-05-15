@@ -1,8 +1,9 @@
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using News_Api.Core.Models;
 using News_Api.Core.Repositories;
-using News_Api.Infrastructure.Data;
 using News_Api.Infrastructure.Repositories;
 using News_Api.Presentation.Options;
 
@@ -10,11 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 var blobOptionsSection = builder.Configuration.GetSection("BlobOptions");
 
+var databaseName = builder.Configuration.GetSection("dbName").Get<string>();
+
+var collectionName = builder.Configuration.GetSection("collectionName").Get<string>();
+
 var blobOptions = blobOptionsSection.Get<BlobOptions>() ?? throw new Exception("Couldn't create blob options object");
 
 builder.Services.Configure<BlobOptions>(blobOptionsSection);
 
-var infrastructureAssembly = typeof(NewsDbContext).Assembly;
+var infrastructureAssembly = typeof(NewsMongoRepository).Assembly;
 
 builder.Services.AddMediatR(configurations =>
 {
@@ -23,12 +28,13 @@ builder.Services.AddMediatR(configurations =>
 
 var connectionString = builder.Configuration.GetConnectionString("NewsDb");
 
-builder.Services.AddDbContext<NewsDbContext>(dbContextOptionsBuilder =>
+builder.Services.AddSingleton<INewsRepository>(provider =>
 {
-    dbContextOptionsBuilder.UseNpgsql(connectionString, o =>
+    if (string.IsNullOrWhiteSpace(connectionString))
     {
-        o.MigrationsAssembly(Assembly.GetExecutingAssembly().FullName);
-    });
+        throw new Exception($"{connectionString} not found");
+    }
+    return new NewsMongoRepository(connectionString, databaseName, collectionName);
 });
 
 builder.Services.AddScoped<INewsRepository, NewsSqlRepository>();
@@ -68,6 +74,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope()){
+    
+     var client = new MongoClient(connectionString);
+
+    var newsDb = client.GetDatabase("NewsDb");
+
+    var newsCollection = newsDb.GetCollection<News>("News");
+}
 
 
 app.UseSwagger();
