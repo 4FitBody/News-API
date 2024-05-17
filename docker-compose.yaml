@@ -17,23 +17,6 @@ services:
       - newsbridgenetwork
     restart: always
 
-  newsmongodb:
-    image: mongo
-    container_name: newsmongodb
-    expose:
-      - 27017
-    ports:
-      - 27017:27017
-    networks:
-      - newsbridgenetwork
-    volumes:
-      - mynewsmongovolume:/data/db
-      - mynewsmongovolume:/data/configdb
-    restart: always
-
-
- 
-  
 
 networks:
   newsbridgenetwork:
