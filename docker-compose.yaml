@@ -4,8 +4,6 @@ services:
   newsapiapp:
     image: newsapi
     container_name: newsapiapp
-    depends_on:
-      - newsmongodb
     build:
       context: .
       dockerfile: Dockerfile
