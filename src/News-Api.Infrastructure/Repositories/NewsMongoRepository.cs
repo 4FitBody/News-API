@@ -1,5 +1,3 @@
-
-
 using MongoDB.Driver;
 using News_Api.Core.Models;
 using News_Api.Core.Repositories;
@@ -20,11 +18,15 @@ public class NewsMongoRepository : INewsRepository
         this.mycollection = this.newsDb.GetCollection<News>(collectionName);
     }
    
-
     public async Task CreateAsync(News news)
     {
+        var lastIndex = this.mycollection.Find(e => e.Id >= 0).ToList().Last().Id;
+
+        news.Id = lastIndex + 1;
+
         await this.mycollection.InsertOneAsync(news);
     }
+
     public async Task<IEnumerable<News>?> GetAllAsync()
     {
         var news = await this.mycollection.FindAsync(n => n.IsApproved == true);
@@ -47,11 +49,11 @@ public class NewsMongoRepository : INewsRepository
         await this.mycollection.FindOneAndDeleteAsync(news => news.Id == id);
     }
 
-
     public async Task UpdateAsync(int id, News newsToUpdate)
     {
         await this.mycollection.ReplaceOneAsync<News>(filter: n => n.Id == id, replacement: newsToUpdate);
     }
+
     public async Task ApproveAsync(int id)
     {
         var update = Builders<News>.Update.Set(news => news.IsApproved, false);

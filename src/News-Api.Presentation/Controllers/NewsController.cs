@@ -53,7 +53,6 @@ public class NewsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Moderator")]
     public async Task<IActionResult> Create(object newsContentJson)
     {
         var settings = new JsonSerializerSettings
@@ -77,7 +76,7 @@ public class NewsController : ControllerBase
 
         news.CreationDate = DateTime.Now;
 
-        news.ImageUrl = "https://4fitbodystorage.blob.core.windows.net/images/" + path;
+        news.ImageUrl = "https://4fitbodystorage.blob.core.windows.net/news-images/" + path;
 
         await this.blobContainerService.UploadAsync(new MemoryStream(imageFileData!), rawPath);
 
@@ -92,7 +91,6 @@ public class NewsController : ControllerBase
 
     [HttpDelete]
     [Route("/api/[controller]/[action]/{id}")]
-    [Authorize(Roles = "Moderator")]
     public async Task<IActionResult> Delete(int? id)
     {
         var createCommand = new DeleteCommand(id);
@@ -105,9 +103,16 @@ public class NewsController : ControllerBase
 
     [HttpPut]
     [Route("/api/[controller]/[action]/{id}")]
-    [Authorize(Roles = "Moderator")]
     public async Task<IActionResult> Update(int? id, [FromBody] News news)
     {
+        var getByIdQuery = new GetByIdQuery(id);
+
+        var oldNews = await this.sender.Send(getByIdQuery);
+
+        news.Id = oldNews.Id;
+
+        news.ImageUrl = oldNews.ImageUrl;
+
         var createCommand = new UpdateCommand(id, news);
 
         await this.sender.Send(createCommand);
